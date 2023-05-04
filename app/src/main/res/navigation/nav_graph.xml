@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/movies">
+
+    <fragment
+        android:id="@+id/movies"
+        android:name="com.example.movieapp.Fragments.Movies"
+        android:label="fragment_movies"
+        tools:layout="@layout/fragment_movies" >
+        <action
+            android:id="@+id/action_movies_to_specificMovie"
+            app:destination="@id/specificMovie" />
+    </fragment>
+    <fragment
+        android:id="@+id/specificMovie"
+        android:name="com.example.movieapp.Fragments.SpecificMovie"
+        android:label="fragment_specific_movie"
+        tools:layout="@layout/fragment_specific_movie">
+        <argument
+            android:name="overview"
+            app:argType="string"
+            android:defaultValue="hola"/>
+        <argument
+            android:name="backdrop"
+            app:argType="string"
+            android:defaultValue="hi" />
+        <argument
+            android:name="title"
+            app:argType="string"
+            android:defaultValue="any" />
+        <argument
+            android:name="calificacion"
+            app:argType="float"
+            android:defaultValue="0.0" />
+    </fragment>
+
+</navigation>

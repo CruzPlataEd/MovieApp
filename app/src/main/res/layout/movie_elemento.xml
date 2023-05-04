@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relative"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/background_movie_view"
+        android:layout_margin="5dp">
+    <TextView
+        android:id="@+id/titulo_movie"
+        android:textSize="16sp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/montserrat_bold"
+        android:gravity="center"
+        android:padding="5dp"
+        android:layout_width="fill_parent"
+        android:layout_height="55dp"
+        android:layout_toStartOf="@+id/imagen_poster"
+        tools:text="The suice squad"/>
+
+    <LinearLayout
+        android:id="@+id/rating"
+        android:layout_width="fill_parent"
+        android:layout_height="48dp"
+        android:gravity="center"
+        android:layout_below="@id/titulo_movie"
+        android:layout_toStartOf="@+id/imagen_poster">
+        <RatingBar
+            android:id="@+id/ratingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:isIndicator="true"
+            android:numStars="5"
+            android:scaleX="0.5"
+            android:scaleY="0.5"
+            android:theme="@style/RatingBar"
+            android:contentDescription="Rating"/>
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/calificacion"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:textColor="@color/black"
+        android:fontFamily="@font/montserrat_bold"
+        android:gravity="center"
+        android:layout_marginTop="5dp"
+        android:layout_below="@id/rating"
+        android:layout_toStartOf="@+id/imagen_poster"
+        tools:text="Calificación: 6.3"/>
+
+    <ImageView
+        android:id="@+id/imagen_poster"
+        android:layout_width="88dp"
+        android:layout_height="138dp"
+        android:adjustViewBounds="true"
+        android:scaleType="fitXY"
+        android:layout_alignParentEnd="true"/>
+    </RelativeLayout>
+
+</RelativeLayout>

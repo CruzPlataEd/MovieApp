@@ -1,34 +1,24 @@
 package com.example.movieapp.Adapters
 
-import android.annotation.SuppressLint
-import android.app.Activity
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.navOptions
 import androidx.recyclerview.widget.RecyclerView
 import com.example.movieapp.API.MovieItem
 import com.example.movieapp.Fragments.MoviesDirections
-import com.example.movieapp.MainActivity
 import com.example.movieapp.R
 import com.example.movieapp.databinding.MovieElementoBinding
 import com.squareup.picasso.Picasso
 
-class MoviesAdapter: RecyclerView.Adapter<MoviesAdapter.ViewHolder>() {
-    var peliculas: ArrayList<MovieItem> = ArrayList()
-
-    @SuppressLint("NotConstructor")
-    fun MoviesAdapter(respuesta: ArrayList<MovieItem>){
-        peliculas = respuesta
-    }
+class MoviesAdapter(private var courseList: ArrayList<MovieItem>): RecyclerView.Adapter<MoviesAdapter.ViewHolder>() {
 
     override fun getItemCount(): Int {
-        return peliculas.size
+        return courseList.size
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(peliculas[position])
+        holder.bind(courseList[position])
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -52,11 +42,14 @@ class MoviesAdapter: RecyclerView.Adapter<MoviesAdapter.ViewHolder>() {
             binding.calificacion.text = "Rating: ${pelicula.vote_average}"
 
             binding.relative.setOnClickListener {
-                //val navController = Navigation.findNavController((binding.root.context) as Activity,R.id.my_nav_host_fragment)
                 val action = MoviesDirections.actionMoviesToSpecificMovie(pelicula.overview,pelicula.backdrop_path,pelicula.title,pelicula.vote_average.toFloat())
-                //navController.navigate(action,options)
                 it.findNavController().navigate(action,options)
             }
         }
+    }
+
+    fun filterMovie(movieFilter: ArrayList<MovieItem>){
+        courseList = movieFilter
+        notifyDataSetChanged()
     }
 }

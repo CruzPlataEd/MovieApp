@@ -1,5 +1,6 @@
 package com.example.movieapp.Fragments
 
+import android.app.AlertDialog
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -9,6 +10,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.activityViewModels
@@ -21,6 +23,7 @@ import com.example.movieapp.Adapters.MoviesAdapter
 import com.example.movieapp.DB.InventoryViewModel
 import com.example.movieapp.DB.InventoryViewModelFactory
 import com.example.movieapp.InventoryApplication
+import com.example.movieapp.R
 import com.example.movieapp.databinding.FragmentMoviesBinding
 import kotlinx.coroutines.launch
 
@@ -31,90 +34,83 @@ class Movies : Fragment() {
     private val viewModel: InventoryViewModel by activityViewModels { InventoryViewModelFactory((activity?.application as InventoryApplication).database.itemDao()) }
     lateinit var adapter: MoviesAdapter
     lateinit var adapterCartelera: MoviesAdapter
-    var pagina = 0
-    var paginaCartelera = 0
+    private var paginasDisponibles: ArrayList<String> = ArrayList()
+    private var pagina = 1
     lateinit var peliculasLista: ArrayList<MovieItem>
     lateinit var peliculasCartelera: ArrayList<MovieItem>
+    private val moviesApi = Repository.getInstance().create(MovieAPI::class.java)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentMoviesBinding.inflate(inflater,container,false)
-        val moviesApi = Repository.getInstance().create(MovieAPI::class.java)
+
+        binding.topRecycler.setHasFixedSize(true)
+        binding.topRecycler.layoutManager = LinearLayoutManager(requireContext())
+        binding.carteleraRecycler.setHasFixedSize(true)
+        binding.carteleraRecycler.layoutManager = LinearLayoutManager(requireContext())
+        binding.CantidadTopRated.text = pagina.toString()
 
         if (isConnected(requireContext())) {
+            showNewAdapter(pagina)
             viewLifecycleOwner.lifecycleScope.launch {
-                try {
-                    val resultadoTop =
-                        moviesApi.fetchMovie("top_rated?api_key=c88e52755192d1c1990a4199bf3f4ffa&language=en-US&page=1")
-                    val resultadoCartelera =
-                        moviesApi.fetchMovie("now_playing?api_key=c88e52755192d1c1990a4199bf3f4ffa&language=en-US&page=1")
+                val resultadoCartelera1 = moviesApi.fetchMovie("now_playing?api_key=c88e52755192d1c1990a4199bf3f4ffa&language=en-US&page=1")
+                val resultadoCartelera2 = moviesApi.fetchMovie("now_playing?api_key=c88e52755192d1c1990a4199bf3f4ffa&language=en-US&page=2")
+                peliculasCartelera = resultadoCartelera1.results
+                peliculasCartelera.addAll(resultadoCartelera2.results)
 
-                    peliculasLista = resultadoTop.results
-                    pagina = resultadoTop.page
-
-                    paginaCartelera = resultadoCartelera.page
-                    peliculasCartelera = resultadoCartelera.results
-
-                    adapter = MoviesAdapter(resultadoTop.results)
-                    adapterCartelera = MoviesAdapter(peliculasCartelera)
-
-                    binding.topRecycler.setHasFixedSize(true)
-                    binding.topRecycler.layoutManager = LinearLayoutManager(requireContext())
-                    binding.topRecycler.adapter = adapter
-                    adapter.notifyDataSetChanged()
-
-                    binding.carteleraRecycler.setHasFixedSize(true)
-                    binding.carteleraRecycler.layoutManager = LinearLayoutManager(requireContext())
-                    binding.carteleraRecycler.adapter = adapterCartelera
-                    adapterCartelera.notifyDataSetChanged()
-
-                    peliculasLista.forEach {
-                        viewModel.addNewItem(pagina, it.poster_path,it.overview,it.title,it.backdrop_path,it.vote_average.toFloat())
-                    }
-                    peliculasCartelera.forEach {
-                        viewModel.addNewItemCartelera(paginaCartelera, it.poster_path,it.overview,it.title,it.backdrop_path,it.vote_average.toFloat())
-                    }
-
-                } catch (e: Exception) {
-                    Log.d("errorBaseDatos",e.message.toString())
-                    Toast.makeText(requireContext(), e.message, Toast.LENGTH_LONG).show()
+                adapterCartelera = MoviesAdapter(peliculasCartelera)
+                binding.carteleraRecycler.adapter = adapterCartelera
+                peliculasCartelera.forEach {
+                    viewModel.addNewItemCartelera(
+                        it.poster_path,
+                        it.overview,
+                        it.title,
+                        it.backdrop_path,
+                        it.vote_average.toFloat()
+                    )
                 }
             }
-
-
         }else{
             viewModel.allItems.observe(this.viewLifecycleOwner){ items->
                 if (!items.isNullOrEmpty()){
+                    paginasDisponibles= ArrayList()
                     val listaNueva: ArrayList<MovieItem> = ArrayList()
+                    var i = 1
                     for (item in items){
+                        i+=1
+                        if (i==20){
+                            i=1
+                            paginasDisponibles.add(item.page.toString())
+                        }
                         if (item.page==1){
                             listaNueva.add(MovieItem(item.poster_path,item.overview,item.title,item.backdrop_path,item.vote_average))
                         }
                     }
                     peliculasLista=listaNueva
                     adapter = MoviesAdapter(listaNueva)
-                    binding.topRecycler.setHasFixedSize(true)
-                    binding.topRecycler.layoutManager = LinearLayoutManager(requireContext())
                     binding.topRecycler.adapter = adapter
-                    adapter.notifyDataSetChanged()
                 }
             }
             viewModel.allCartelera.observe(this.viewLifecycleOwner){ items ->
                 if (!items.isNullOrEmpty()){
                     val listaNueva: ArrayList<MovieItem> = ArrayList()
                     for (item in items){
-                        if (item.page==1){
-                            listaNueva.add(MovieItem(item.poster_path,item.overview,item.title,item.backdrop_path,item.vote_average))
-                        }
+                        listaNueva.add(MovieItem(item.poster_path,item.overview,item.title,item.backdrop_path,item.vote_average))
                     }
                     peliculasCartelera=listaNueva
                     adapterCartelera = MoviesAdapter(listaNueva)
-                    binding.carteleraRecycler.setHasFixedSize(true)
-                    binding.carteleraRecycler.layoutManager = LinearLayoutManager(requireContext())
                     binding.carteleraRecycler.adapter = adapterCartelera
-                    adapterCartelera.notifyDataSetChanged()
                 }
             }
         }
+
+        binding.CantidadTopRated.setOnClickListener {
+            if (isConnected(requireContext())) {
+                colocarCantidadProducto()
+            }else{
+                seleccionarMultiListaDialog()
+            }
+        }
+
         binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener,android.widget.SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 return false
@@ -127,16 +123,37 @@ class Movies : Fragment() {
         return binding.root
     }
 
+    private fun showNewAdapter(page:Int){
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                val resultadoTop = moviesApi.fetchMovie("top_rated?api_key=c88e52755192d1c1990a4199bf3f4ffa&language=en-US&page=${page}")
+                peliculasLista = resultadoTop.results
+                pagina = resultadoTop.page
+
+                adapter = MoviesAdapter(resultadoTop.results)
+                binding.topRecycler.adapter = adapter
+                adapter.notifyDataSetChanged()
+                peliculasLista.forEach {
+                    viewModel.addNewItem(pagina, it.poster_path,it.overview,it.title,it.backdrop_path,it.vote_average.toFloat())
+                }
+
+            } catch (e: Exception) {
+                Log.d("errorBaseDatos",e.message.toString())
+                Toast.makeText(requireContext(), e.message, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
     private fun filter(text: String){
         val filteredList: ArrayList<MovieItem> = ArrayList()
         val filteredCartList: ArrayList<MovieItem> = ArrayList()
         for (item in peliculasLista){
-            if (item.title.toLowerCase().contains(text.toLowerCase())){
+            if (item.title.lowercase().contains(text.lowercase())){
                 filteredList.add(item)
             }
         }
         for (item in peliculasCartelera){
-            if (item.title.toLowerCase().contains(text.toLowerCase())){
+            if (item.title.lowercase().contains(text.lowercase())){
                 filteredCartList.add(item)
             }
         }
@@ -144,6 +161,56 @@ class Movies : Fragment() {
             adapter.filterMovie(filteredList)
             adapterCartelera.filterMovie(filteredCartList)
         }
+    }
+
+    private fun colocarCantidadProducto(){
+        val alertDialog = AlertDialog.Builder(context,R.style.CustomDialogTheme)
+        val view = LayoutInflater.from(context).inflate(R.layout.dialog_edit_cant, null)
+        val cantidadText = view.findViewById<EditText>(R.id.cantidad_producto)
+        alertDialog.apply {
+            setView(view)
+            setCancelable(false)
+            setTitle("Enter the page")
+            setPositiveButton("Accept") { dialog, id ->
+                if (cantidadText.text.isNullOrBlank() || cantidadText.text.toString().toInt() == 0) {
+                    Toast.makeText(requireContext(),"Enter a number",Toast.LENGTH_LONG).show()
+                } else {
+                    binding.CantidadTopRated.text = cantidadText.text.toString()
+                    showNewAdapter(cantidadText.text.toString().toInt())
+                }
+            }
+            setNegativeButton("Cancelar") { dialog, id -> dialog.cancel() }
+        }.create().show()
+    }
+
+    private fun seleccionarMultiListaDialog(){
+        var itemSeleccionado = -1
+        val alertDialog = AlertDialog.Builder(requireContext(),R.style.CustomDialogTheme)
+        alertDialog.apply {
+            setCancelable(false)
+            setTitle("Select a page")
+            setSingleChoiceItems(paginasDisponibles.toTypedArray(),-1) { dialog, which ->
+                itemSeleccionado = which }
+            setPositiveButton("Accept") { dialog, id ->
+                binding.CantidadTopRated.text = paginasDisponibles[itemSeleccionado]
+                viewModel.allItems.observe(viewLifecycleOwner){ items->
+                    if (!items.isNullOrEmpty()){
+                        val listaNueva: ArrayList<MovieItem> = ArrayList()
+                        for (item in items){
+                            if (item.page==paginasDisponibles[itemSeleccionado].toInt()){
+                                listaNueva.add(MovieItem(item.poster_path,item.overview,item.title,item.backdrop_path,item.vote_average))
+                            }
+                        }
+                        peliculasLista=listaNueva
+                        adapter = MoviesAdapter(listaNueva)
+                        binding.topRecycler.adapter = adapter
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+            }
+            setNegativeButton("Cancel") { dialog, id -> dialog.cancel() }
+
+        }.create().show()
     }
 
     fun isConnected(context: Context): Boolean {
@@ -163,6 +230,5 @@ class Movies : Fragment() {
         }
         return false
     }
-
 
 }

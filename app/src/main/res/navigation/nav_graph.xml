@@ -35,6 +35,9 @@
             android:name="calificacion"
             app:argType="float"
             android:defaultValue="0.0" />
+        <action
+            android:id="@+id/action_specificMovie_to_movies"
+            app:destination="@id/movies" />
     </fragment>
 
 </navigation>

@@ -26,8 +26,8 @@ class InventoryViewModel(private val itemDao: ItemDao):ViewModel() {
         insertItem(newItem)
     }
 
-    fun addNewItemCartelera(page:Int,poster:String,overview:String,title:String,backdrop:String,voto:Float){
-        val newItem = Cartelera(page,poster,overview,title,backdrop,voto)
+    fun addNewItemCartelera(poster:String,overview:String,title:String,backdrop:String,voto:Float){
+        val newItem = Cartelera(poster,overview,title,backdrop,voto)
         insertCartelera(newItem)
     }
 }

@@ -27,6 +27,6 @@ interface ItemDao {
     @Query("SELECT * from peliculas ORDER BY page ASC")
     fun getItems(): Flow<List<Item>>
 
-    @Query("SELECT * from cartelera ORDER BY page ASC")
+    @Query("SELECT * from cartelera")
     fun getCantidad(): Flow<List<Cartelera>>
 }

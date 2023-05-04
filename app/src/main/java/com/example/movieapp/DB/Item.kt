@@ -22,8 +22,6 @@ data class Item(
 
 @Entity(tableName = "cartelera")
 data class Cartelera(
-    @ColumnInfo(name = "page")
-    val page: Int,
     @ColumnInfo(name = "poster_path")
     val poster_path: String,
     @ColumnInfo(name = "overview")

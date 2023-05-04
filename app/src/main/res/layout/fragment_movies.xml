@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     tools:context=".Fragments.Movies"
@@ -39,10 +40,47 @@
                 android:layout_width="match_parent"
                 android:layout_height="350dp"/>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_margin="10dp"
+                android:orientation="horizontal"
+                android:gravity="end">
+
+                <TextView
+                    android:text="Page:"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:gravity="center"
+                    android:textColor="@color/white"
+                    android:textSize="17sp"
+                    android:fontFamily="@font/montserrat_bold"/>
+
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/ToggleButton"
+                    android:layout_width="75dp"
+                    android:layout_height="40dp"
+                    android:gravity="center"
+                    android:layout_marginEnd="20dp">
+
+                    <Button
+                        android:id="@+id/CantidadTopRated"
+                        style="@style/Widget.App.Button.OutlinedButton.IconOnly"
+                        android:layout_width="55dp"
+                        android:layout_height="match_parent"
+                        android:clickable="false"
+                        android:text="1"
+                        android:fontFamily="@font/montserrat_medium"
+                        android:textColor="@color/white"
+                        android:textSize="15sp" />
+
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            </LinearLayout>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
-
                 android:gravity="center"
                 android:textColor="@color/white"
                 android:textSize="19sp"
@@ -53,7 +91,8 @@
                 android:id="@+id/cartelera_recycler"
                 android:layout_width="match_parent"
                 android:layout_height="350dp"
-                android:layout_marginBottom="90dp"/>
+                android:layout_marginBottom="100dp" />
+
         </LinearLayout>
     </ScrollView>
 </FrameLayout>
